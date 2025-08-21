@@ -1,56 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:submission/controller/home_controller.dart';
+import '../controller/home_controller.dart';
+import 'result_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<HomeController>();
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Food Recognizer App'),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: const _HomeBody(),
-        ),
-      ),
-    );
-  }
-}
-
-class _HomeBody extends StatelessWidget {
-  const _HomeBody();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Expanded(
-          child: Center(
-            child: GestureDetector(
-              onTap: () {
-                // todo-01: tap this icon to open image picker feature
+      appBar: AppBar(title: const Text('Food Recognizer')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            controller.image != null
+                ? Image.file(controller.image!, height: 200)
+                : const Icon(Icons.fastfood, size: 120),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.photo_camera),
+              label: const Text("Ambil dari Kamera"),
+              onPressed: () {
+                context.read<HomeController>().pickImage(ImageSource.camera);
               },
-              child: const Align(
-                alignment: Alignment.center,
-                child: Icon(Icons.image, size: 100),
-              ),
             ),
-          ),
+            ElevatedButton.icon(
+              icon: const Icon(Icons.photo),
+              label: const Text("Ambil dari Galeri"),
+              onPressed: () {
+                context.read<HomeController>().pickImage(ImageSource.gallery);
+              },
+            ),
+            if (controller.label != null) ...[
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ResultPage()),
+                  );
+                },
+                child: const Text("Lihat Hasil"),
+              ),
+            ],
+          ],
         ),
-        FilledButton.tonal(
-          onPressed: () {
-            context.read<HomeController>().goToResultPage(context);
-          },
-          child: const Text("Analyze"),
-        ),
-      ],
+      ),
     );
   }
 }

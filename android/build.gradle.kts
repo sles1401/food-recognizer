@@ -16,6 +16,17 @@ subprojects {
     project.evaluationDependsOn(":app")
 }
 
+// Fix namespace issues for plugins
+subprojects {
+    plugins.withId("com.android.library") {
+        extensions.configure<com.android.build.gradle.LibraryExtension> {
+            if (namespace == null) {
+                namespace = "com.dicoding.flutter.u758.submission"
+            }
+        }
+    }
+}
+
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
