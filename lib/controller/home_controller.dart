@@ -15,7 +15,6 @@ class HomeController extends ChangeNotifier {
   String? get label => _label;
   String? get confidence => _confidence;
 
-  /// ambil gambar dari kamera/galeri
   Future<void> pickImage(ImageSource source) async {
     final pickedFile = await _picker.pickImage(source: source);
     if (pickedFile != null) {
@@ -25,7 +24,6 @@ class HomeController extends ChangeNotifier {
     }
   }
 
-  /// jalankan klasifikasi
   Future<void> classify() async {
     if (_image == null) return;
     final result = await _classifier.classify(_image!);

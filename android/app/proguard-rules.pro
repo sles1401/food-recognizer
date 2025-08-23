@@ -12,5 +12,5 @@
 -keep class io.flutter.plugins.**  { *; }
 -dontwarn io.flutter.embedding.android.**
 
-# Ignore Play Core (karena tidak pakai deferred components)
+# Ignore Play Core 
 -dontwarn com.google.android.play.core.**
