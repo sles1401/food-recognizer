@@ -12,7 +12,7 @@ class Classifier {
   Future<void> loadModel() async {
     try {
       _interpreter =
-          await Interpreter.fromAsset('model.tflite'); // 👈 tanpa 'assets/'
+          await Interpreter.fromAsset('model.tflite'); 
       final labelsData =
           await rootBundle.loadString('assets/probability-labels-en.txt');
       _labels = labelsData.split('\n').map((e) => e.trim()).toList();
