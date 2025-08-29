@@ -4,28 +4,34 @@ import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 class Classifier {
-  late Interpreter _interpreter;
+  Interpreter? _interpreter;
   late List<String> _labels;
   final int inputSize = 224;
 
-  Classifier() {
-    _loadModel();
+  /// Load model dan label dari assets
+  Future<void> loadModel() async {
+    try {
+      _interpreter =
+          await Interpreter.fromAsset('model.tflite'); // 👈 tanpa 'assets/'
+      final labelsData =
+          await rootBundle.loadString('assets/probability-labels-en.txt');
+      _labels = labelsData.split('\n').map((e) => e.trim()).toList();
+    } catch (e) {
+      throw Exception("Gagal load model: $e");
+    }
   }
 
-  Future<void> _loadModel() async {
-    _interpreter = await Interpreter.fromAsset('model.tflite');
-    // Load labels from asset
-    final labelsData =
-        await rootBundle.loadString('assets/probability-labels.txt');
-    _labels = labelsData.split('\n').map((e) => e.trim()).toList();
-  }
-
+  /// Klasifikasi gambar
   Future<Map<String, dynamic>> classify(File imageFile) async {
+    if (_interpreter == null) {
+      throw Exception("Model belum diload. Panggil loadModel() dulu.");
+    }
+
     final rawImage = img.decodeImage(await imageFile.readAsBytes())!;
     final resizedImage =
         img.copyResize(rawImage, width: inputSize, height: inputSize);
 
-    // Convert image to input tensor [1, 224, 224, 3]
+    // Buat input tensor [1, 224, 224, 3]
     var input = List.generate(
       1,
       (i) => List.generate(
@@ -44,12 +50,12 @@ class Classifier {
       ),
     );
 
-    // Prepare output tensor
+    // Buat output tensor
     var output = List.filled(_labels.length, 0.0).reshape([1, _labels.length]);
 
-    _interpreter.run(input, output);
+    _interpreter!.run(input, output);
 
-    // Get max probability
+    // Cari probabilitas tertinggi
     final scores = output[0];
     int maxIndex = 0;
     double maxScore = 0;
@@ -67,6 +73,6 @@ class Classifier {
   }
 
   void close() {
-    _interpreter.close();
+    _interpreter?.close();
   }
 }
